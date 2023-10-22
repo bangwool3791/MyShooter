@@ -355,29 +355,29 @@ void AMyCharacter::FireWeapon()
 					//	double dDist = BeamEndPoint.Dist(BeamEndPoint, Start);
 					//	vRocketDir = vDir / dDist;
 					//}
-					UObject* LightObject = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("/Game/MyProject/Weapons/Bullet/Bullet.Bullet")));
-	
-					UBlueprint* GeneratedLightBP = Cast<UBlueprint>(LightObject);
-					if (!GeneratedLightBP)
-						return;
-					UClass* LightClass = GeneratedLightBP->StaticClass();
-					if (LightClass == NULL)
-						return;
+					//UObject* BulletObject = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("/Game/MyProject/Weapons/Bullet/Bullet.Bullet")));
+					//
+					//UBlueprint* GeneratedBulletBP = Cast<UBlueprint>(BulletObject);
+					//if (!GeneratedBulletBP)
+					//	return;
+					//UClass* LightClass = GeneratedBulletBP->StaticClass();
+					//if (LightClass == NULL)
+					//	return;
 
-					UWorld* World = GetWorld();
-					FActorSpawnParameters SpawnParams;
-					SpawnParams.Owner = this;
-					/*호출되면 항상 스폰되도록 설정한다.*/
-					SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-					FVector vDir = BeamEndPoint - Start;
-					vDir.Normalize();
+					if (BulletClass)
+					{
+						UWorld* World = GetWorld();
+						FActorSpawnParameters SpawnParams;
+						SpawnParams.Owner = this;
+						/*호출되면 항상 스폰되도록 설정한다.*/
+						SpawnParams.Instigator = GetInstigator();
+						FVector vDir = BeamEndPoint - Start;
+						vDir.Normalize();
 
-					FRotator Rot = vDir.Rotation().Quaternion().Rotator();
-					FRotator ActorRot = GetActorRotation();
-					ActorRot.Add(Rot.Pitch, Rot.Roll, Rot.Yaw);
-					FVector Pos = GetActorLocation();
+						FRotator Rot = vDir.Rotation().Quaternion().Rotator();
 
-					AActor* actor = World->SpawnActor<AActor>(GeneratedLightBP->GeneratedClass, SocketTransform.GetLocation(), Rot, SpawnParams);
+						ABullet* actor = World->SpawnActor<ABullet>(BulletClass, SocketTransform.GetLocation(), Rot, SpawnParams);
+					}
 					//actor->AttachToComponent(EquippedWeapon->GetItemMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("BarrelSocket"));
 				}
 			}

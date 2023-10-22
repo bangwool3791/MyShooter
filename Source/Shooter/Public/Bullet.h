@@ -29,10 +29,9 @@ protected:
 	class URadialForceComponent* RadialForce;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Bullet Properties", meta = (AllowPrivateAccess = "true"));
 	class UStaticMeshComponent* Mesh;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Bullet Properties", meta = (AllowPrivateAccess = "true"));
+	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	class UProjectileMovementComponent* ProjecttileMovement;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 };

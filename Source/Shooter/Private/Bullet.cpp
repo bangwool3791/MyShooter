@@ -37,7 +37,7 @@ void ABullet::BeginPlay()
 	SphereCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	FVector vDir = GetActorRotation().Vector();
 	vDir.Normalize();
-	vDir *= 10000.f;
+	vDir *= 100.f;
 	SphereCollision->AddImpulse(vDir * 1.f);
 
 	//Arrow->SetSimulatePhysics(true);
@@ -46,11 +46,11 @@ void ABullet::BeginPlay()
 	//Arrow->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	//Arrow->AddImpulse(vDir * 1.f);
 
-	Mesh->SetSimulatePhysics(true);
-	Mesh->SetEnableGravity(false);
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Mesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	Mesh->AddImpulse(vDir * 1.f);
+	//Mesh->SetSimulatePhysics(true);
+	//Mesh->SetEnableGravity(false);
+	//Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//Mesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	//Mesh->AddImpulse(vDir * 1.f);
 	//Super::BeginPlay();
 	//FVector FRot{ 0.f, 0.f, 359.999997 };
 	//Arrow->SetRelativeRotation(FRot.ToOrientationQuat());

@@ -284,6 +284,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"));
 	float CameraInterpElevation;
 
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	TSubclassOf<class ABullet> BulletClass;
 public:
 	FORCEINLINE bool GetAiming() const { return bAiming; }
 	FORCEINLINE bool GetFireBullet() const { return bFiringBullet; }
