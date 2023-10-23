@@ -90,6 +90,7 @@ protected:
 	/* Pointer to the character*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"));
 	class AMyCharacter* Character;
+
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
 	FORCEINLINE EItemState GetItemState() const { return ItemState; }

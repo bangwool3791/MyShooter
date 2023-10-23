@@ -64,7 +64,7 @@ AMyCharacter::AMyCharacter()
 	//Create a camera boom (pulls in towards the character if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.f;
+	CameraBoom->TargetArmLength = 200.f;
 	CameraBoom->bUsePawnControlRotation = true;
 	CameraBoom->SocketOffset = FVector(0.f, 80.f, 80.f);
 	//Create a follow Camera
@@ -116,13 +116,19 @@ AMyCharacter::AMyCharacter()
 		TEXT("/Game/Voyager/Demo/Levels/UndergroundBaseLevel/Particles/P_spark_burst.P_spark_burst")
 	);
 
-	ImpactParticles = ImpactParticleAsset.Object;
+	if (ImpactParticleAsset.Succeeded())
+		ImpactParticles = ImpactParticleAsset.Object;
+
 	/// Script / Engine.ParticleSystem'/Game/MyProject/Assets/SmokeBeam/P_SmokeTrail_Faded.P_SmokeTrail_Faded'
 	ConstructorHelpers::FObjectFinder<UParticleSystem> ImpactWallParticleAsset(
 		TEXT("/Game/ParagonLtBelica/FX/Particles/Belica/Abilities/Primary/FX/P_BelicaHitWorld.P_BelicaHitWorld")
 	);
 
-	ImpactWallParticles = ImpactWallParticleAsset.Object;
+	if (ImpactWallParticleAsset.Succeeded())
+	{
+		ImpactWallParticles = ImpactWallParticleAsset.Object;
+	}
+
 	/// Script / Engine.ParticleSystem'/Game/Voyager/Demo/Particles/Effects/FX_Mobile/Fire/combat/P_SlimeBall.P_SlimeBall'
 	ConstructorHelpers::FObjectFinder<UParticleSystem> BulletParticlesAsset(
 		TEXT("/Game/Voyager/Demo/Particles/Effects/FX_Mobile/Fire/combat/P_SlimeBall.P_SlimeBall")
@@ -318,11 +324,11 @@ void AMyCharacter::FireWeapon()
 
 			if (bBeamEnd)
 			{
-				//if (ImpactParticles)
-				//{
-				//	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactWallParticles, BeamEndPoint);
-				//	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, BeamEndPoint);
-				//}
+				if (ImpactParticles && ImpactWallParticles)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactWallParticles, BeamEndPoint);
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, BeamEndPoint);
+				}
 
 
 				if (BeamParticles)
@@ -355,29 +361,30 @@ void AMyCharacter::FireWeapon()
 					//	double dDist = BeamEndPoint.Dist(BeamEndPoint, Start);
 					//	vRocketDir = vDir / dDist;
 					//}
-					//UObject* BulletObject = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("/Game/MyProject/Weapons/Bullet/Bullet.Bullet")));
-					//
-					//UBlueprint* GeneratedBulletBP = Cast<UBlueprint>(BulletObject);
-					//if (!GeneratedBulletBP)
-					//	return;
-					//UClass* LightClass = GeneratedBulletBP->StaticClass();
-					//if (LightClass == NULL)
-					//	return;
+					UObject* LightObject = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("/Game/MyProject/Weapons/Bullet/Bullet.Bullet")));
 
-					if (BulletClass)
-					{
-						UWorld* World = GetWorld();
-						FActorSpawnParameters SpawnParams;
-						SpawnParams.Owner = this;
-						/*호출되면 항상 스폰되도록 설정한다.*/
-						SpawnParams.Instigator = GetInstigator();
-						FVector vDir = BeamEndPoint - Start;
-						vDir.Normalize();
+					UBlueprint* GeneratedLightBP = Cast<UBlueprint>(LightObject);
+					if (!GeneratedLightBP)
+						return;
+					UClass* LightClass = GeneratedLightBP->StaticClass();
+					if (LightClass == NULL)
+						return;
 
-						FRotator Rot = vDir.Rotation().Quaternion().Rotator();
+					UWorld* World = GetWorld();
+					FActorSpawnParameters SpawnParams;
+					SpawnParams.Owner = this;
+					/*호출되면 항상 스폰되도록 설정한다.*/
+					SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+					FVector vDir = BeamEndPoint - Start;
+					vDir.Normalize();
 
-						ABullet* actor = World->SpawnActor<ABullet>(BulletClass, SocketTransform.GetLocation(), Rot, SpawnParams);
-					}
+					FRotator Rot = vDir.Rotation().Quaternion().Rotator();
+					FRotator ActorRot = GetActorRotation();
+					ActorRot.Add(Rot.Pitch, Rot.Roll, Rot.Yaw);
+					FVector Pos = GetActorLocation();
+
+					ABullet* actor = World->SpawnActor<ABullet>(GeneratedLightBP->GeneratedClass, SocketTransform.GetLocation(), Rot, SpawnParams);
+					actor->FireInDirection(vDir);
 					//actor->AttachToComponent(EquippedWeapon->GetItemMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("BarrelSocket"));
 				}
 			}
@@ -1042,7 +1049,6 @@ void AMyCharacter::EquipWeapon(class AWeapon* WeaponToEquip)
 	if (WeaponToEquip)
 	{
 		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("hand_rSocket"));
-
 		if (HandSocket)
 		{
 			HandSocket->AttachActor(WeaponToEquip, GetMesh());
@@ -1079,6 +1085,22 @@ FVector AMyCharacter::GetCameraInterpLocation()
 	const FVector CameraForward{ FollowCamera->GetForwardVector() };
 	// Desired = CameraWorldLocation + Forward * A + Up * B
 	return CameraWorldLocation + CameraForward * CameraInterpDistance + FVector(0.f, 0.f, CameraInterpElevation);
+}
+
+FVector AMyCharacter::GetHandInterpLocation()
+{
+	const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("hand_rSocket"));
+	if (HandSocket)
+	{
+		FQuat fquad;
+
+		FTransform transfrom = HandSocket->GetSocketTransform(GetMesh());
+		const FVector HandWorldLocation{ transfrom.GetLocation()};
+		const FVector HandForward{ transfrom.TransformRotation(fquad).Vector().ForwardVector};
+		// Desired = CameraWorldLocation + Forward * A + Up * B
+		return HandWorldLocation + HandForward * HandInterpDistance + FVector(0.f, 0.f, HandInterpElevation);
+	}
+	return FVector();
 }
 
 void AMyCharacter::GetPickupItem(Aitem* Item)

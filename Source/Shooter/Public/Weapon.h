@@ -66,16 +66,27 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"));
 	class UCurveFloat* ItemZCurve;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"));
+	class UCurveFloat* ItemScaleCurve;
+
 	/* Called when ItemInterpTImer is finished*/
 	void FinishInterping();
 
 	/* Handles item interpolation when in the EquipInterping state*/
 	void ItemInterp(float DeltaTime);
+
+	/* X and Y for the Item while interping in the EquipInterping*/
+	float ItemInterpX;
+	float ItemInterpY;
+
+	/* Initial Yaw offset between the camera and the interping item*/
+	float InterpInitialYawOffset;
 private:
 	FTimerHandle ThrowWeaponTimer;
 	float ThrowWeaponTime;
 	bool bFalling;
 	FHitResult WeaponeHitResult;
+
 public:
 	void TurnLight(bool bLight);
 	void ToggleLight();

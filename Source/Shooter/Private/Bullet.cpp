@@ -7,7 +7,10 @@
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components\SphereComponent.h"
-
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "UObject/ConstructorHelpers.h"
 // Sets default values
 ABullet::ABullet()
 {
@@ -37,30 +40,11 @@ void ABullet::BeginPlay()
 	SphereCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	FVector vDir = GetActorRotation().Vector();
 	vDir.Normalize();
-	vDir *= 100.f;
+	vDir *= 12000.f;
 	SphereCollision->AddImpulse(vDir * 1.f);
-
-	//Arrow->SetSimulatePhysics(true);
-	//Arrow->SetEnableGravity(false);
-	//Arrow->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//Arrow->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	//Arrow->AddImpulse(vDir * 1.f);
-
-	//Mesh->SetSimulatePhysics(true);
-	//Mesh->SetEnableGravity(false);
-	//Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//Mesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	//Mesh->AddImpulse(vDir * 1.f);
-	//Super::BeginPlay();
-	//FVector FRot{ 0.f, 0.f, 359.999997 };
-	//Arrow->SetRelativeRotation(FRot.ToOrientationQuat());
-	//Arrow->SetArrowColor(FLinearColor::Red);
-	//Arrow->SetArrowSize(1.f);
-	//Arrow->ArrowLength = 80.f;
-	//Arrow->ScreenSize = 0.0025f;
-	//Arrow->bUseInEditorScaling = true;
-	//Arrow->SetComponentTickEnabled(true);
-
+	
+	SphereCollision->OnComponentBeginOverlap.AddDynamic(this, &ABullet::OnSphereOverlap);
+	SphereCollision->OnComponentEndOverlap.AddDynamic(this, &ABullet::OnSphereEndOverlap);
 }
 
 // Called every frame
@@ -70,3 +54,24 @@ void ABullet::Tick(float DeltaTime)
 
 }
 
+void ABullet::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+
+}
+
+void ABullet::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex)
+{
+}
+
+void ABullet::FireInDirection(const FVector& ShootDirection)
+{
+	ProjecttileMovement->Velocity = ShootDirection * ProjecttileMovement->InitialSpeed;
+}

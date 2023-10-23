@@ -97,10 +97,6 @@ private:
 public:
 
 private:
-	/* Returns CameraBoom subobject*/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/*Returns FollowCamera subobject*/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	/* Base turn rate, in deg/sec. Other scaling may affect final turn rate*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"));
@@ -131,13 +127,6 @@ private:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"));
 	class UAnimMontage* HipFireMontageWalk;
 
-	/* Particles spawnd upon bullet impact*/
-	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"));
-	class UParticleSystem* ImpactParticles;
-
-	/* Particles spawnd upon bullet impact*/
-	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"));
-	class UParticleSystem* ImpactWallParticles;
 
 	/* Smoke trail for bullets */
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"));
@@ -277,15 +266,28 @@ private:
 	Aitem* TraceHitItem;
 
 	/* Distnace outward from the camera for the interp destination*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"));
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"));
 	float CameraInterpDistance;
 
 	/* Distnace upward form the camera for the interp destination*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"));
 	float CameraInterpElevation;
 
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	TSubclassOf<class ABullet> BulletClass;
+	/* Distnace outward from the camera for the interp destination*/
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"));
+	float HandInterpDistance;
+
+	/* Distnace upward form the camera for the interp destination*/
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"));
+	float HandInterpElevation;
+
+	/* Particles spawnd upon bullet impact*/
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Bullet Properties", meta = (AllowPrivateAccess = "true"));
+	class UParticleSystem* ImpactParticles;
+	/* Particles spawnd upon bullet impact*/
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Bullet Properties", meta = (AllowPrivateAccess = "true"));
+	class UParticleSystem* ImpactWallParticles;
+
 public:
 	FORCEINLINE bool GetAiming() const { return bAiming; }
 	FORCEINLINE bool GetFireBullet() const { return bFiringBullet; }
@@ -300,6 +302,12 @@ public:
 	void IncrementOverlappedTriggerCount(int8 Amount);
 
 	FVector GetCameraInterpLocation();
+	FVector GetHandInterpLocation();
 
 	void GetPickupItem(Aitem* Item);
+
+	/* Returns CameraBoom subobject*/
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	/*Returns FollowCamera subobject*/
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
